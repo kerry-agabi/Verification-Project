@@ -606,7 +606,7 @@ public class Main {
         Period periodStay = new Period(12, 12);
         BigDecimal expected = BigDecimal.ZERO;
         assertEquals(expected, rate.calculate(periodStay));
-    } // Bug  the calculated charge for a period of stay with the same start and end time is not equal to zero
+    }
 
 
     @Test
