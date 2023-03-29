@@ -113,7 +113,7 @@ public class Main {
         normalPeriods.add(new Period(13, 16));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.MANAGEMENT, reducedPeriods, normalPeriods);
         assertThrows(IllegalArgumentException.class, () -> rate.calculate(new Period(6, 7)));
-    }
+    } // Bug t checks whether the calculate () method throws an IllegalArgumentException when provided with a period that is not allowed. The expected behavior is to throw an exception
     //8
     @Test
     void testCalculateNullPeriod() {
@@ -163,7 +163,7 @@ public class Main {
         normalPeriods.add(new Period(13, 15));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(5), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         assertThrows(IllegalArgumentException.class, () -> rate.calculate(new Period(12, 23)));
-    }
+    } //Bug The test checks whether the calculate() method throws an IllegalArgumentException when provided with a period that overlaps both normal and reduced periods.
 
     //12
     @Test
@@ -176,7 +176,7 @@ public class Main {
         normalPeriods.add(new Period(14, 18));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STUDENT, reducedPeriods, normalPeriods);
         assertThrows(IllegalArgumentException.class, () -> rate.calculate(new Period(0, 11)));
-    }
+    } // Bug The test checks whether the calculate() method throws an IllegalArgumentException when provided with a period that has a duration of 0
 
     //13
     @Test
@@ -305,7 +305,7 @@ public class Main {
             CarParkKind carParkKind = CarParkKind.STAFF;
             new Rate(normalRate, reducedRate, carParkKind, reducedPeriods, normalPeriods);
         });
-    }
+    } // Bug
 
     //8
     @Test
@@ -555,7 +555,7 @@ public class Main {
         normalPeriods.add(new Period(9, 18));
 
         assertThrows(NullPointerException.class, () -> new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), null, reducedPeriods, normalPeriods));
-    }
+    } // Bug Carpark parameter cannot be null
 
 
 //Calculate
@@ -606,7 +606,22 @@ public class Main {
         Period periodStay = new Period(12, 12);
         BigDecimal expected = BigDecimal.ZERO;
         assertEquals(expected, rate.calculate(periodStay));
-    }
+    } // Bug  the calculated charge for a period of stay with the same start and end time is not equal to zero
+
+
+    @Test
+    void testConstructorZeroRates() {
+        ArrayList<Period> reducedPeriods = new ArrayList<>();
+        ArrayList<Period> normalPeriods = new ArrayList<>();
+        normalPeriods.add(new Period(7, 10));
+        normalPeriods.add(new Period(14, 18));
+        assertThrows(IllegalArgumentException.class, () -> {
+            BigDecimal normalRate = BigDecimal.valueOf(0);
+            BigDecimal reducedRate = BigDecimal.valueOf(0);
+            CarParkKind carParkKind = CarParkKind.STAFF;
+            new Rate(normalRate, reducedRate, carParkKind, reducedPeriods, normalPeriods);
+        });
+    } // bug
 
 
 
