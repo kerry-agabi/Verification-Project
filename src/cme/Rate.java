@@ -16,6 +16,12 @@ public class Rate {
         if (reducedPeriods == null || normalPeriods == null) {
             throw new IllegalArgumentException("periods cannot be null");
         }
+        if (reducedPeriods.isEmpty() || normalPeriods.isEmpty()) {
+            throw new IllegalArgumentException("Reduced and normal periods cannot be empty");
+        }
+        if (kind == null) {
+            throw new NullPointerException("CarParkKind cannot be null");
+        }
         if (normalRate == null || reducedRate == null) {
             throw new IllegalArgumentException("The rates cannot be null");
         }
@@ -89,10 +95,24 @@ public class Rate {
         return isValid;
     }
     public BigDecimal calculate(Period periodStay) {
+        if (!isAllowedPeriod(periodStay)) {
+            throw new IllegalArgumentException("The period is not allowed");
+        }
+
         int normalRateHours = periodStay.occurences(normal);
         int reducedRateHours = periodStay.occurences(reduced);
         return (this.hourlyNormalRate.multiply(BigDecimal.valueOf(normalRateHours))).add(
                 this.hourlyReducedRate.multiply(BigDecimal.valueOf(reducedRateHours)));
     }
+
+    private boolean isAllowedPeriod(Period periodStay) {
+        return isPeriodWithinList(periodStay, normal) || isPeriodWithinList(periodStay, reduced);
+    }
+
+    private boolean isPeriodWithinList(Period periodStay, List<Period> list) {
+        return periodStay.duration() == periodStay.occurences(list);
+    }
+
+
 
 }

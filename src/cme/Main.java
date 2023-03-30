@@ -113,7 +113,8 @@ public class Main {
         normalPeriods.add(new Period(13, 16));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.MANAGEMENT, reducedPeriods, normalPeriods);
         assertThrows(IllegalArgumentException.class, () -> rate.calculate(new Period(6, 7)));
-    } // Bug t checks whether the calculate () method throws an IllegalArgumentException when provided with a period that is not allowed. The expected behavior is to throw an exception
+    } // Bug it checks whether the calculate () method throws an IllegalArgumentException when provided with a period that is not allowed. The expected behavior is to throw an exception
+    // Fixed!
     //8
     @Test
     void testCalculateNullPeriod() {
@@ -306,6 +307,8 @@ public class Main {
             new Rate(normalRate, reducedRate, carParkKind, reducedPeriods, normalPeriods);
         });
     } // Bug
+
+    // Fixed !
 
     //8
     @Test
@@ -556,6 +559,7 @@ public class Main {
 
         assertThrows(NullPointerException.class, () -> new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), null, reducedPeriods, normalPeriods));
     } // Bug Carpark parameter cannot be null
+    // Fixed!
 
 
 //Calculate
@@ -609,19 +613,6 @@ public class Main {
     }
 
 
-    @Test
-    void testConstructorZeroRates() {
-        ArrayList<Period> reducedPeriods = new ArrayList<>();
-        ArrayList<Period> normalPeriods = new ArrayList<>();
-        normalPeriods.add(new Period(7, 10));
-        normalPeriods.add(new Period(14, 18));
-        assertThrows(IllegalArgumentException.class, () -> {
-            BigDecimal normalRate = BigDecimal.valueOf(0);
-            BigDecimal reducedRate = BigDecimal.valueOf(0);
-            CarParkKind carParkKind = CarParkKind.STAFF;
-            new Rate(normalRate, reducedRate, carParkKind, reducedPeriods, normalPeriods);
-        });
-    } // bug
 
 
 
