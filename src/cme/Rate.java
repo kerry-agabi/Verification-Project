@@ -82,6 +82,21 @@ public class Rate{
      * @param list the collection of periods to check
      * @return true if the periods do not overlap
      */
+
+    private void validatePeriodOverlap(Period periodStay) {
+        for (Period period : reduced) {
+            if (periodStay.overlaps(period)) {
+                throw new IllegalArgumentException("The period is not allowed");
+            }
+        }
+
+        for (Period period : normal) {
+            if (periodStay.overlaps(period)) {
+                throw new IllegalArgumentException("The period is not allowed");
+            }
+        }
+    }
+
     private Boolean isValidPeriods(ArrayList<Period> list) {
         Boolean isValid = true;
         if (list.size() >= 2) {
@@ -111,7 +126,10 @@ public class Rate{
         }
         return isValid;
     }
+
+
     public BigDecimal calculate(Period periodStay) {
+        validatePeriodOverlap(periodStay);
         if (!isAllowedPeriod(periodStay)) {
             throw new IllegalArgumentException("The period is not allowed");
         }
