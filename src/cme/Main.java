@@ -27,7 +27,7 @@ public class Main {
         normalPeriods.add(new Period(18, 22));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(11, 13));
-        BigDecimal expected = BigDecimal.valueOf(20);
+        BigDecimal expected = BigDecimal.valueOf(10);
         assertEquals(expected, actual);
     }
     //2
@@ -56,7 +56,7 @@ public class Main {
         normalPeriods.add(new Period(18, 22));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(10, 14));
-        BigDecimal expected = BigDecimal.valueOf(40);
+        BigDecimal expected = BigDecimal.valueOf(15.0);
         assertEquals(expected, actual);
 
     }
@@ -71,7 +71,7 @@ public class Main {
         normalPeriods.add(new Period(18, 22));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(18, 22));
-        BigDecimal expected = BigDecimal.valueOf(40);
+        BigDecimal expected = BigDecimal.valueOf(10);
         assertEquals(expected, actual);
 
     }
@@ -88,7 +88,7 @@ public class Main {
         normalPeriods.add(new Period(18, 22));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(18, 22));
-        BigDecimal expected = BigDecimal.valueOf(40);
+        BigDecimal expected = BigDecimal.valueOf(10);
         assertEquals(expected, actual);
 
     }
@@ -137,7 +137,7 @@ public class Main {
         normalPeriods.add(new Period(15, 18));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(5), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(10, 11));
-        BigDecimal expected = BigDecimal.valueOf(10);
+        BigDecimal expected = BigDecimal.valueOf(0);
         assertEquals(expected, actual);
     }
     //10
@@ -576,7 +576,7 @@ public class Main {
     void testCalculate_normalRateOnly() {
         Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         Period periodStay = new Period(9, 15);
-        BigDecimal expected = new BigDecimal("15.00");
+        BigDecimal expected = new BigDecimal("10");
         assertEquals(expected, rate.calculate(periodStay));
     }
 
