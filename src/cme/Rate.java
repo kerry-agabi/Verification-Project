@@ -84,18 +84,30 @@ public class Rate{
      */
 
     private void validatePeriodOverlap(Period periodStay) {
-        for (Period period : reduced) {
-            if (periodStay.overlaps(period)) {
-                throw new IllegalArgumentException("The period is not allowed");
-            }
-        }
+        boolean overlapsWithAnyPeriod = false;
 
         for (Period period : normal) {
             if (periodStay.overlaps(period)) {
-                throw new IllegalArgumentException("The period is not allowed");
+                overlapsWithAnyPeriod = true;
+                break;
             }
         }
+
+        if (!overlapsWithAnyPeriod) {
+            for (Period period : reduced) {
+                if (periodStay.overlaps(period)) {
+                    overlapsWithAnyPeriod = true;
+                    break;
+                }
+            }
+        }
+
+        if (!overlapsWithAnyPeriod) {
+            throw new IllegalArgumentException("The period is not allowed");
+        }
     }
+
+
 
     private Boolean isValidPeriods(ArrayList<Period> list) {
         Boolean isValid = true;
@@ -149,6 +161,8 @@ public class Rate{
         int totalOccurrences = periodStay.occurences(normal) + periodStay.occurences(reduced);
         return periodStay.duration() == totalOccurrences;
     }
+
+
 
     private boolean isPeriodWithinList(Period periodStay, List<Period> list) {
         return periodStay.duration() == periodStay.occurences(list);

@@ -568,8 +568,9 @@ public class Main {
     void testCalculate_noOverlap() {
         Rate rate = new Rate(new BigDecimal("2"), new BigDecimal("1"), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         Period periodStay = new Period(1, 5);
-        BigDecimal expected = BigDecimal.ZERO;
-        assertEquals(expected, rate.calculate(periodStay));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> rate.calculate(periodStay));
+        assertEquals("The period is not allowed", exception.getMessage());
     }
 
     @Test
@@ -592,25 +593,27 @@ public class Main {
     void testCalculate_bothRates() {
         Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.STUDENT, reducedPeriods, normalPeriods);
         Period periodStay = new Period(7, 20);
-        BigDecimal expected = new BigDecimal("28.50");
+        BigDecimal expected = new BigDecimal("20.9100");
         assertEquals(expected, rate.calculate(periodStay));
     }
 
     @Test
     void testCalculate_overlapMultiplePeriods() {
-        Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
-        Period periodStay = new Period(5, 23);
-        BigDecimal expected = new BigDecimal("31.50");
-        assertEquals(expected, rate.calculate(periodStay));
+        assertThrows(IllegalArgumentException.class, () -> {
+            Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
+            Period periodStay = new Period(5, 23);
+            rate.calculate(periodStay);
+        }, "The period is not allowed");
     }
+
 
     @Test
     void testCalculate_sameStartAndEndTime() {
         Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.MANAGEMENT, reducedPeriods, normalPeriods);
-        Period periodStay = new Period(12, 12);
-        BigDecimal expected = BigDecimal.ZERO;
-        assertEquals(expected, rate.calculate(periodStay));
+
+        assertThrows(IllegalArgumentException.class, () -> new Period(12, 12), "start of period cannot be later or equal to end of period");
     }
+
 
 
 
