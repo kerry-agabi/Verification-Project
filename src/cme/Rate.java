@@ -146,7 +146,8 @@ public class Rate{
     }
 
     private boolean isAllowedPeriod(Period periodStay) {
-        return isPeriodWithinList(periodStay, normal) || isPeriodWithinList(periodStay, reduced);
+        int totalOccurrences = periodStay.occurences(normal) + periodStay.occurences(reduced);
+        return periodStay.duration() == totalOccurrences;
     }
 
     private boolean isPeriodWithinList(Period periodStay, List<Period> list) {
