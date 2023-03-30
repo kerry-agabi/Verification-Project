@@ -4,12 +4,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Rate {
+public class Rate{
     private CarParkKind kind;
     private BigDecimal hourlyNormalRate;
     private BigDecimal hourlyReducedRate;
     private ArrayList<Period> reduced = new ArrayList<>();
     private ArrayList<Period> normal = new ArrayList<>();
+    private RateStrategy rateStrategy;
 
     public Rate(BigDecimal normalRate, BigDecimal reducedRate, CarParkKind kind, ArrayList<Period> reducedPeriods
             , ArrayList<Period> normalPeriods) {
@@ -42,6 +43,22 @@ public class Rate {
         this.hourlyReducedRate = reducedRate;
         this.reduced = reducedPeriods;
         this.normal = normalPeriods;
+
+        // Initialize the RateStrategy attribute based on the CarParkKind value
+        switch (kind) {
+            case VISITOR:
+                rateStrategy = new VisitorRateStrategy();
+                break;
+            case MANAGEMENT:
+                rateStrategy = new ManagementRateStrategy();
+                break;
+            case STUDENT:
+                rateStrategy = new StudentRateStrategy();
+                break;
+            case STAFF:
+                rateStrategy = new StaffRateStrategy();
+                break;
+        }
     }
 
     /**
@@ -101,8 +118,13 @@ public class Rate {
 
         int normalRateHours = periodStay.occurences(normal);
         int reducedRateHours = periodStay.occurences(reduced);
-        return (this.hourlyNormalRate.multiply(BigDecimal.valueOf(normalRateHours))).add(
+
+        BigDecimal calculatedCost = (this.hourlyNormalRate.multiply(BigDecimal.valueOf(normalRateHours))).add(
                 this.hourlyReducedRate.multiply(BigDecimal.valueOf(reducedRateHours)));
+
+        // Apply the rate strategy before returning the calculated cost
+        return rateStrategy.applyRate(calculatedCost);
+
     }
 
     private boolean isAllowedPeriod(Period periodStay) {
