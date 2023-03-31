@@ -1,17 +1,14 @@
 package cme;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class Main {
+public class AgabiKerryTestTask3 {
 
     private ArrayList<Period> reducedPeriods;
     private ArrayList<Period> normalPeriods;
