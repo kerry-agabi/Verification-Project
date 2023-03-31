@@ -4,12 +4,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Rate {
+public class Rate{
     private CarParkKind kind;
     private BigDecimal hourlyNormalRate;
     private BigDecimal hourlyReducedRate;
     private ArrayList<Period> reduced = new ArrayList<>();
     private ArrayList<Period> normal = new ArrayList<>();
+    private RateStrategy rateStrategy;
 
     public Rate(BigDecimal normalRate, BigDecimal reducedRate, CarParkKind kind, ArrayList<Period> reducedPeriods
             , ArrayList<Period> normalPeriods) {
@@ -42,6 +43,22 @@ public class Rate {
         this.hourlyReducedRate = reducedRate;
         this.reduced = reducedPeriods;
         this.normal = normalPeriods;
+
+        // Initialize the RateStrategy attribute based on the CarParkKind value
+        switch (kind) {
+            case VISITOR:
+                rateStrategy = new VisitorRateStrategy();
+                break;
+            case MANAGEMENT:
+                rateStrategy = new ManagementRateStrategy();
+                break;
+            case STUDENT:
+                rateStrategy = new StudentRateStrategy();
+                break;
+            case STAFF:
+                rateStrategy = new StaffRateStrategy();
+                break;
+        }
     }
 
     /**
@@ -65,6 +82,32 @@ public class Rate {
      * @param list the collection of periods to check
      * @return true if the periods do not overlap
      */
+
+    private void validatePeriodOverlap(Period periodStay) {
+        boolean overlapsWithAnyPeriod = false;
+
+        for (Period period : normal) {
+            if (periodStay.overlaps(period)) {
+                overlapsWithAnyPeriod = true;
+                break;
+            }
+        }
+        if (!overlapsWithAnyPeriod) {
+            for (Period period : reduced) {
+                if (periodStay.overlaps(period)) {
+                    overlapsWithAnyPeriod = true;
+                    break;
+                }
+            }
+        }
+
+        if (!overlapsWithAnyPeriod) {
+            throw new IllegalArgumentException("The period is not allowed");
+        }
+    }
+
+
+
     private Boolean isValidPeriods(ArrayList<Period> list) {
         Boolean isValid = true;
         if (list.size() >= 2) {
@@ -95,23 +138,30 @@ public class Rate {
         return isValid;
     }
     public BigDecimal calculate(Period periodStay) {
+        validatePeriodOverlap(periodStay);
         if (!isAllowedPeriod(periodStay)) {
             throw new IllegalArgumentException("The period is not allowed");
         }
 
         int normalRateHours = periodStay.occurences(normal);
         int reducedRateHours = periodStay.occurences(reduced);
-        return (this.hourlyNormalRate.multiply(BigDecimal.valueOf(normalRateHours))).add(
+
+        BigDecimal calculatedCost = (this.hourlyNormalRate.multiply(BigDecimal.valueOf(normalRateHours))).add(
                 this.hourlyReducedRate.multiply(BigDecimal.valueOf(reducedRateHours)));
+
+        // Apply the rate strategy before returning the calculated cost
+        return rateStrategy.applyRate(calculatedCost);
+
     }
 
     private boolean isAllowedPeriod(Period periodStay) {
-        return isPeriodWithinList(periodStay, normal) || isPeriodWithinList(periodStay, reduced);
+        int totalOccurrences = periodStay.occurences(normal) + periodStay.occurences(reduced);
+        return periodStay.duration() == totalOccurrences;
     }
 
-    private boolean isPeriodWithinList(Period periodStay, List<Period> list) {
-        return periodStay.duration() == periodStay.occurences(list);
-    }
+
+
+
 
 
 

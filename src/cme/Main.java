@@ -2,6 +2,7 @@ package cme;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Assertions;
@@ -27,7 +28,7 @@ public class Main {
         normalPeriods.add(new Period(18, 22));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(11, 13));
-        BigDecimal expected = BigDecimal.valueOf(20);
+        BigDecimal expected = BigDecimal.valueOf(10);
         assertEquals(expected, actual);
     }
     //2
@@ -56,7 +57,7 @@ public class Main {
         normalPeriods.add(new Period(18, 22));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(10, 14));
-        BigDecimal expected = BigDecimal.valueOf(40);
+        BigDecimal expected = BigDecimal.valueOf(15.0);
         assertEquals(expected, actual);
 
     }
@@ -71,7 +72,7 @@ public class Main {
         normalPeriods.add(new Period(18, 22));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(18, 22));
-        BigDecimal expected = BigDecimal.valueOf(40);
+        BigDecimal expected = BigDecimal.valueOf(10);
         assertEquals(expected, actual);
 
     }
@@ -88,7 +89,7 @@ public class Main {
         normalPeriods.add(new Period(18, 22));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(18, 22));
-        BigDecimal expected = BigDecimal.valueOf(40);
+        BigDecimal expected = BigDecimal.valueOf(10);
         assertEquals(expected, actual);
 
     }
@@ -137,7 +138,7 @@ public class Main {
         normalPeriods.add(new Period(15, 18));
         Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(5), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
         BigDecimal actual = rate.calculate(new Period(10, 11));
-        BigDecimal expected = BigDecimal.valueOf(10);
+        BigDecimal expected = BigDecimal.valueOf(0);
         assertEquals(expected, actual);
     }
     //10
@@ -195,13 +196,16 @@ public class Main {
     }
 
     //14
+
     @Test
     void testCalculateWithNullReducedPeriod() {
         ArrayList<Period> normalPeriods = new ArrayList<>();
         normalPeriods.add(new Period(7, 10));
         normalPeriods.add(new Period(13, 16));
-        Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STUDENT, null, normalPeriods);
-        assertThrows(IllegalArgumentException.class, () -> rate.calculate(new Period(11, 12)));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STUDENT, null, normalPeriods));
+
+        assertEquals("periods cannot be null", exception.getMessage());
     }
 
 
@@ -568,15 +572,16 @@ public class Main {
     void testCalculate_noOverlap() {
         Rate rate = new Rate(new BigDecimal("2"), new BigDecimal("1"), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         Period periodStay = new Period(1, 5);
-        BigDecimal expected = BigDecimal.ZERO;
-        assertEquals(expected, rate.calculate(periodStay));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> rate.calculate(periodStay));
+        assertEquals("The period is not allowed", exception.getMessage());
     }
 
     @Test
     void testCalculate_normalRateOnly() {
         Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.STAFF, reducedPeriods, normalPeriods);
         Period periodStay = new Period(9, 15);
-        BigDecimal expected = new BigDecimal("15.00");
+        BigDecimal expected = new BigDecimal("10");
         assertEquals(expected, rate.calculate(periodStay));
     }
 
@@ -592,25 +597,59 @@ public class Main {
     void testCalculate_bothRates() {
         Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.STUDENT, reducedPeriods, normalPeriods);
         Period periodStay = new Period(7, 20);
-        BigDecimal expected = new BigDecimal("28.50");
+        BigDecimal expected = new BigDecimal("20.9100");
         assertEquals(expected, rate.calculate(periodStay));
     }
 
     @Test
     void testCalculate_overlapMultiplePeriods() {
-        Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
-        Period periodStay = new Period(5, 23);
-        BigDecimal expected = new BigDecimal("31.50");
-        assertEquals(expected, rate.calculate(periodStay));
+        assertThrows(IllegalArgumentException.class, () -> {
+            Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
+            Period periodStay = new Period(5, 23);
+            rate.calculate(periodStay);
+        }, "The period is not allowed");
     }
+
 
     @Test
     void testCalculate_sameStartAndEndTime() {
         Rate rate = new Rate(new BigDecimal("2.50"), new BigDecimal("1.50"), CarParkKind.MANAGEMENT, reducedPeriods, normalPeriods);
-        Period periodStay = new Period(12, 12);
-        BigDecimal expected = BigDecimal.ZERO;
+
+        assertThrows(IllegalArgumentException.class, () -> new Period(12, 12), "start of period cannot be later or equal to end of period");
+    }
+
+// Test Cases for the Change in specification
+@Test
+void testCalculate_visitorReduction() {
+    Rate rate = new Rate(new BigDecimal("10"), new BigDecimal("8"), CarParkKind.VISITOR, reducedPeriods, normalPeriods);
+    Period periodStay = new Period(9, 12); // Adjusted to fit within the normal periods
+    BigDecimal expected = new BigDecimal("10.0");
+    assertEquals(expected, rate.calculate(periodStay));
+}
+
+    @Test
+    void testCalculate_managementMinimumPayable() {
+        Rate rate = new Rate(new BigDecimal("2"), new BigDecimal("1"), CarParkKind.MANAGEMENT, reducedPeriods, normalPeriods);
+        Period periodStay = new Period(9, 10); // Adjusted to fit within the normal periods
+        BigDecimal expected = new BigDecimal("5");
         assertEquals(expected, rate.calculate(periodStay));
     }
+
+    @Test
+    void testCalculate_studentReduction() {
+        Rate rate = new Rate(new BigDecimal("6"), new BigDecimal("4"), CarParkKind.STUDENT, reducedPeriods, normalPeriods);
+        Period periodStay = new Period(9, 12);
+        BigDecimal expected = new BigDecimal("13.88");
+        assertEquals(expected.setScale(2, RoundingMode.HALF_UP), rate.calculate(periodStay).setScale(2, RoundingMode.HALF_UP));
+    }
+
+    @Test
+    void testCalculate_staffMaximumPayable() {
+        Rate rate = new Rate(new BigDecimal("2"), new BigDecimal("1"), CarParkKind.STAFF, reducedPeriods, normalPeriods);
+        Period periodStay = new Period(5, 23); // duration exceeds the maximum allowable duration of 10 hours
+        assertThrows(IllegalArgumentException.class, () -> rate.calculate(periodStay), "The period is not allowed");
+    }
+
 
 
 
