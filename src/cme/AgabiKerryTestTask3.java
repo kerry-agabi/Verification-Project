@@ -632,6 +632,7 @@ void testCalculate_visitorReduction() {
         assertEquals(expected, rate.calculate(periodStay));
     }
 
+
     @Test
     void testCalculate_studentReduction() {
         Rate rate = new Rate(new BigDecimal("6"), new BigDecimal("4"), CarParkKind.STUDENT, reducedPeriods, normalPeriods);
