@@ -195,13 +195,16 @@ public class Main {
     }
 
     //14
+
     @Test
     void testCalculateWithNullReducedPeriod() {
         ArrayList<Period> normalPeriods = new ArrayList<>();
         normalPeriods.add(new Period(7, 10));
         normalPeriods.add(new Period(13, 16));
-        Rate rate = new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STUDENT, null, normalPeriods);
-        assertThrows(IllegalArgumentException.class, () -> rate.calculate(new Period(11, 12)));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Rate(BigDecimal.valueOf(10), BigDecimal.valueOf(8), CarParkKind.STUDENT, null, normalPeriods));
+
+        assertEquals("periods cannot be null", exception.getMessage());
     }
 
 

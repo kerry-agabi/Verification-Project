@@ -92,7 +92,6 @@ public class Rate{
                 break;
             }
         }
-
         if (!overlapsWithAnyPeriod) {
             for (Period period : reduced) {
                 if (periodStay.overlaps(period)) {
@@ -138,8 +137,6 @@ public class Rate{
         }
         return isValid;
     }
-
-
     public BigDecimal calculate(Period periodStay) {
         validatePeriodOverlap(periodStay);
         if (!isAllowedPeriod(periodStay)) {
@@ -164,9 +161,7 @@ public class Rate{
 
 
 
-    private boolean isPeriodWithinList(Period periodStay, List<Period> list) {
-        return periodStay.duration() == periodStay.occurences(list);
-    }
+
 
 
 
